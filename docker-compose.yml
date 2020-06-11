@@ -1,0 +1,41 @@
+version: '3.7'
+
+services:
+  db:
+    image: postgres:10.5-alpine
+    environment:
+      - POSTGRES_DB=transfer-system
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ${PWD}/.data/postgresql:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - BACKEND_IP=0.0.0.0
+      - BACKEND_PORT=8081
+      - DEBUG=True
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+    volumes:
+      - type: bind
+        source: ./nginx/default.conf
+        target: /etc/nginx/conf.d/default.conf
+    depends_on:
+      - db
+      - backend
+
+volumes:
+  db:
