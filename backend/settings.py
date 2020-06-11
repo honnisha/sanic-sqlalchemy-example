@@ -39,6 +39,13 @@ LOGGER_SETTINGS = {
     },
 }
 
+connection = 'postgres://{0}:{1}@{2}/{3}'.format(
+    os.environ.get('DATABASE_USER'),
+    os.environ.get('DATABASE_PASSWORD'),
+    os.environ.get('DATABASE_HOST'),
+    os.environ.get('DATABASE_NAME'),
+)
+
 try:
     from local_settings import *
 except ImportError:

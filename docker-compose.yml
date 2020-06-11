@@ -20,6 +20,11 @@ services:
       - BACKEND_IP=0.0.0.0
       - BACKEND_PORT=8081
       - DEBUG=True
+
+      - DATABASE_USER=user
+      - DATABASE_PASSWORD=password
+      - DATABASE_HOST=db
+      - DATABASE_NAME=transfer-system
     depends_on:
       - db
     volumes:
