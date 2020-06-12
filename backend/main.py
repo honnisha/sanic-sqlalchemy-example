@@ -2,6 +2,8 @@
 
 from datetime import timedelta
 from logging.config import dictConfig
+from sqlalchemy import MetaData
+from sqlalchemy.ext.declarative import declarative_base
 
 import settings
 from sanic import Sanic
@@ -19,6 +21,11 @@ app.config['SECRET_KEY'] = settings.SECRET_KEY
 auth = Auth(app)
 app.config['AUTH_LOGIN_ENDPOINT'] = 'login'
 
+mainmetatadata = MetaData()
+Base = declarative_base(metadata=mainmetatadata)
+from users.models import User
+from transfers.models import Transaction
+from currencies.models import Currency
 
 if __name__ == '__main__':
 

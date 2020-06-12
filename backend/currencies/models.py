@@ -1,9 +1,8 @@
 import enum
 
 import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declarative_base
 
-Base = declarative_base()
+from main import Base
 
 
 class CurrenciesEnum(enum.Enum):
@@ -15,7 +14,7 @@ class CurrenciesEnum(enum.Enum):
 
 
 class Currency(Base):
-    __tablename__ = 'currencies'
+    __tablename__ = 'currency'
 
     currency = sa.Column(sa.types.Enum(CurrenciesEnum), primary_key=True)
     rate = sa.Column(sa.types.Float)
