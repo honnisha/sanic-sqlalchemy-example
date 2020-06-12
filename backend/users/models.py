@@ -20,8 +20,12 @@ class User(Base):
     def balance(self):
         return Decimal(self._balance)
 
+    @property
+    def name(self):
+        return f'#{id} {self.email}'
+
     @balance.setter
     def balance(self, new_balance):
         self._balance = float(new_balance)
 
-# self.password_hash = generate_password_hash(password)
+users = User.__table__

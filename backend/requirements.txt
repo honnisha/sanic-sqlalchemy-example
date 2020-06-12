@@ -1,6 +1,9 @@
 remote_pdb==2.0.0
 sanic==20.3.0
 databases==0.3.2
-Sanic-Auth==0.2.0
 alembic==1.4.2
-psycopg2
+asyncpg==0.20.1
+psycopg2==2.8.5
+sanic-session==0.7.3
+aiohttp==3.6.2
+pytest-sanic==1.6.1

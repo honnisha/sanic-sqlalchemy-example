@@ -1,5 +1,8 @@
-import os
+import binascii
 import hashlib
+import os
+from functools import wraps
+from sanic import response
 
 
 def generate_password_hash(password):
@@ -18,3 +21,18 @@ def verify_password(stored_password, password):
     )
     pwdhash = binascii.hexlify(pwdhash).decode('ascii')
     return pwdhash == stored_password
+
+
+def login_required():
+    def decorator(f):
+        @wraps(f)
+        async def decorated_function(request, *args, **kwargs):
+            is_authorized = request.ctx.session.get('user_id')
+
+            if is_authorized:
+                return await f(request, *args, **kwargs)
+            else:
+                # the user is not authorized.
+                return response.text('Not authorized', status=403)
+        return decorated_function
+    return decorator

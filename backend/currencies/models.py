@@ -18,3 +18,5 @@ class Currency(Base):
 
     currency = sa.Column(sa.types.Enum(CurrenciesEnum), primary_key=True)
     rate = sa.Column(sa.types.Float)
+
+currencies = Currency.__table__

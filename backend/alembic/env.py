@@ -8,7 +8,9 @@ import os
 sys.path.insert(0, os.getcwd())
 
 import settings
-from main import mainmetatadata
+from users.models import User
+from transfers.models import Transaction
+from currencies.models import Currency
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -22,7 +24,9 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = mainmetatadata
+
+# TODO: change to target_metadata = mainmetatadata
+target_metadata = [User.metadata, Transaction.metadata, Currency.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

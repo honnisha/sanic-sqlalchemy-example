@@ -21,3 +21,5 @@ class Transaction(Base):
     user = sa.orm.relationship("user")
 
     currency = sa.Column(sa.types.Enum(CurrenciesEnum), primary_key=True)
+
+transactions = Transaction.__table__
