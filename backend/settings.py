@@ -43,7 +43,14 @@ connection = 'postgres://{0}:{1}@{2}/{3}'.format(
     os.environ.get('DATABASE_USER'),
     os.environ.get('DATABASE_PASSWORD'),
     os.environ.get('DATABASE_HOST'),
-    os.environ.get('DATABASE_NAME'),
+    os.environ.get('DATABASE_DB'),
+)
+
+test_connection = 'postgres://{0}:{1}@{2}/{3}'.format(
+    os.environ.get('DATABASE_USER'),
+    os.environ.get('DATABASE_PASSWORD'),
+    os.environ.get('DATABASE_TEST_HOST'),
+    os.environ.get('DATABASE_TEST_DB'),
 )
 
 try:

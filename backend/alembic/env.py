@@ -8,9 +8,7 @@ import os
 sys.path.insert(0, os.getcwd())
 
 import settings
-from users.models import User
-from transfers.models import Transaction
-from currencies.models import Currency
+from main import mainmetatadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -25,8 +23,7 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
-# TODO: change to target_metadata = mainmetatadata
-target_metadata = [User.metadata, Transaction.metadata, Currency.metadata]
+target_metadata = mainmetatadata
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -49,6 +46,11 @@ def run_migrations_offline():
 
     """
     url = config.get_main_option("sqlalchemy.url")
+    
+    db_url = context.get_x_argument(as_dictionary=True).get('dburl')
+    if db_url:
+        url = db_url
+
     context.configure(
         url=url, target_metadata=target_metadata, literal_binds=True)
 
@@ -63,8 +65,15 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
+    
+    ini_section = config.get_section(config.config_ini_section)
+
+    db_url = context.get_x_argument(as_dictionary=True).get('dburl')
+    if db_url:
+        ini_section['sqlalchemy.url'] = db_url
+
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
+        ini_section,
         prefix='sqlalchemy.',
         poolclass=pool.NullPool)
 

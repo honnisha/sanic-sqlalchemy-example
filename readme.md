@@ -1,4 +1,4 @@
-Project is example of usage Sanic framework with async SQLAlchemy core usage (not orm). Alembic is used for migrations.
+Project is example of usage Sanic framework with Postgresql async SQLAlchemy core (not orm). Alembic is used for migrations.
 
 To run in Docker:
 ```shell

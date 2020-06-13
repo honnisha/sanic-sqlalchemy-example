@@ -1,14 +1,14 @@
 version: '3.7'
 
 services:
-  db:
+  postgresql:
     image: postgres:10.5-alpine
     environment:
-      - POSTGRES_DB=transfer-system
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
+      - POSTGRES_MULTIPLE_DATABASES=db1,db2
     volumes:
-      - ${PWD}/.data/postgresql:/var/lib/postgresql/data
+        - ./postgresql:/docker-entrypoint-initdb.d
 
   backend:
     build:
@@ -21,12 +21,17 @@ services:
       - BACKEND_PORT=8081
       - DEBUG=True
 
-      - DATABASE_USER=user
       - DATABASE_PASSWORD=password
-      - DATABASE_HOST=db
-      - DATABASE_NAME=transfer-system
+      - DATABASE_USER=user
+
+      - DATABASE_DB=db1
+      - DATABASE_HOST=postgresql
+
+      - DATABASE_TEST_DB=db2
+      - DATABASE_TEST_HOST=postgresql
+
     depends_on:
-      - db
+      - postgresql
     volumes:
       - ./backend:/app
 
@@ -39,7 +44,7 @@ services:
         source: ./nginx/default.conf
         target: /etc/nginx/conf.d/default.conf
     depends_on:
-      - db
+      - postgresql
       - backend
 
 volumes:

@@ -1,15 +1,13 @@
 import logging
 import re
 
-from sqlalchemy import create_engine
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql import select
 
+from asyncpg import UniqueViolationError
 from currencies.models import CurrenciesEnum
 from sanic import Blueprint, response
-from users.models import users, User
-from users.utils import generate_password_hash, verify_password, login_required
-from asyncpg import UniqueViolationError
+from users.models import users
+from users.utils import generate_password_hash, login_required, verify_password
 
 logger = logging.getLogger('users')
 
@@ -17,10 +15,14 @@ users_blueprint = Blueprint('users_blueprint', url_prefix='/api')
 
 LOGIN_DATA_ERROR = "Provide email, password for login"
 AUTH_ERROR_MESSAGE = "An account could not be found for the provided username and password"
+NO_DATA_ERROR = "No data provided"
 
 
 @users_blueprint.route('/register', methods=['POST'])
 async def register(request):
+    if not request.json:
+        return response.text(NO_DATA_ERROR, status=400)
+
     email = request.json.get('email')
     if not email or not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", email):
         return response.text("Not valid email", status=400)

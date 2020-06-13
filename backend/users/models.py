@@ -11,10 +11,13 @@ class User(Base):
     __tablename__ = 'user'
 
     id = sa.Column(sa.types.Integer, primary_key=True, unique=True, autoincrement=True)
+
     _balance = sa.Column(sa.types.Float(precision=28))
-    currency = sa.Column(sa.types.Enum(CurrenciesEnum), primary_key=True)
     email = sa.Column(sa.types.String, unique=True)
     password_hash = sa.Column(sa.types.String)
+
+    currency_id = sa.Column(sa.types.Integer, sa.ForeignKey('currency.id'))
+    currency = sa.orm.relationship("Currency", backref="transaction")
 
     @property
     def balance(self):

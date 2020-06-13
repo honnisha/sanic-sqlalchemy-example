@@ -1,12 +1,11 @@
 import json
 
-from sqlalchemy.sql import select
-from sqlalchemy.sql.expression import bindparam
-
 import aiohttp
-from databases import Database
+from sqlalchemy.sql import select
+
 import settings
 from currencies.models import CurrenciesEnum, currencies
+from databases import Database
 
 # UPDATE_URL = 'https://api.exchangeratesapi.io/latest?symbols={}'
 KEY = '6f2c32c1c903969dcfc7554bde8236be'

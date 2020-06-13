@@ -8,7 +8,7 @@ from users.models import User
 class Transaction(Base):
     __tablename__ = 'transaction'
 
-    id = sa.Column(sa.types.Integer, primary_key=True)
+    id = sa.Column(sa.types.Integer, primary_key=True, unique=True, autoincrement=True)
 
     sender_id = sa.Column(sa.types.Integer, sa.ForeignKey('user.id'))
     sender = sa.orm.relationship("User", backref="target_user")
@@ -20,6 +20,7 @@ class Transaction(Base):
 
     user = sa.orm.relationship("user")
 
-    currency = sa.Column(sa.types.Enum(CurrenciesEnum), primary_key=True)
+    currency_id = sa.Column(sa.types.Integer, sa.ForeignKey('currency.id'))
+    currency = sa.orm.relationship("Currency", backref="transaction")
 
 transactions = Transaction.__table__

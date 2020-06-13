@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 from logging.config import dictConfig
+from socket import gaierror
 
 from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
@@ -28,22 +29,36 @@ Base = declarative_base(metadata=mainmetatadata)
 
 @app.listener('before_server_start')
 async def register_db(app, loop):
-    app.config['database'] = Database(settings.connection)
-    await app.config['database'].connect()
+    app.config['database'] = Database(app.config['CONNECTION'])
+    try:
+        await app.config['database'].connect()
+
+    except gaierror:
+        raise gaierror(f"Can't connect to {app.config['CONNECTION']}")
 
 @app.listener('before_server_stop')
 async def register_db(app, loop):
     await app.config['database'].disconnect()
 
-    
-if __name__ == '__main__':
+
+def create_app(connection, run=True):
+
+    app.config['CONNECTION'] = connection
+
     from transfers.views import transfers_blueprint
     from users.views import users_blueprint
-    app.register_blueprint(users_blueprint)
-    app.register_blueprint(transfers_blueprint)
 
-    app.run(
-        settings.HOST_IP, int(settings.HOST_PORT),
-        debug=bool(settings.DEBUG),
-        auto_reload=bool(settings.DEBUG)
-    )
+    # Register views
+    app.blueprint(users_blueprint)
+    app.blueprint(transfers_blueprint)
+
+    if run:
+        app.run(
+            settings.HOST_IP, int(settings.HOST_PORT),
+            debug=bool(settings.DEBUG),
+            auto_reload=bool(settings.DEBUG)
+        )
+    return app
+
+if __name__ == '__main__':
+    create_app(settings.connection)
