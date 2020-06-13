@@ -1,4 +1,7 @@
-Project is example of usage Sanic framework with Postgresql async SQLAlchemy core (not orm). Alembic is used for migrations.
+Project is example of usage Sanic framework with Postgresql async SQLAlchemy core (not orm). 
+Alembic is used for migrations.
+PostgreSQL in Docker is configured for two databases, one is used for tests.
+
 
 To run in Docker:
 ```shell
@@ -13,10 +16,14 @@ docker exec -it transfer-system_backend_1 alembic revision --autogenerate -m "na
 docker exec -it transfer-system_backend_1 alembic upgrade head
 docker exec -it transfer-system_backend_1 alembic current
 ```
+You can specify database url with flag:
+```shell
+alembic -x dburl=postgres://user:password@postgresql/db2 upgrade head
+```
 
 To run tests:
 ```shell
-docker exec -it transfer-system_backend_1 python -m unittest discover
+sudo docker exec -it transfer-system_backend_1 pytest tests.py
 ```
 
 Command for update currencies exchange rate:
