@@ -7,3 +7,4 @@ psycopg2==2.8.5
 sanic-session==0.7.3
 aiohttp==3.6.2
 pytest-sanic==1.6.1
+pytest-mock==3.1.1

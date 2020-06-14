@@ -28,7 +28,7 @@ Base = declarative_base(metadata=mainmetatadata)
 
 
 @app.listener('before_server_start')
-async def register_db(app, loop):
+async def connect_db(app, loop):
     app.config['database'] = Database(app.config['CONNECTION'])
     try:
         await app.config['database'].connect()
@@ -36,8 +36,9 @@ async def register_db(app, loop):
     except gaierror:
         raise gaierror(f"Can't connect to {app.config['CONNECTION']}")
 
+
 @app.listener('before_server_stop')
-async def register_db(app, loop):
+async def disconnect_db(app, loop):
     await app.config['database'].disconnect()
 
 
@@ -59,6 +60,7 @@ def create_app(connection, run=True):
             auto_reload=bool(settings.DEBUG)
         )
     return app
+
 
 if __name__ == '__main__':
     create_app(settings.connection)

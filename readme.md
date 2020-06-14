@@ -6,13 +6,17 @@ Alembic is used for migrations.
 
 PostgreSQL in Docker is configured for two databases, one is used for tests.
 
+pytest-sanic and pytest-mock is used for tests.
+
 ## Usage
 
 To run in Docker:
 ```shell
-sudo docker-compose build
-sudo docker-compose up
+docker-compose build
+docker-compose up
 ```
+
+You can use backend with `http://0.0.0.0/api/`
 
 ## Migrations
 
@@ -32,7 +36,7 @@ alembic -x dburl=postgres://user:password@postgresql/db2 upgrade head
 
 To run tests:
 ```shell
-sudo docker exec -it transfer-system_backend_1 pytest tests.py
+docker exec -it transfer-system_backend_1 pytest tests.py
 ```
 
 ## Commands

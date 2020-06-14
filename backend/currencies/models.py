@@ -18,7 +18,7 @@ class Currency(Base):
 
     id = sa.Column(sa.types.Integer, primary_key=True, unique=True, autoincrement=True)
 
-    currency = sa.Column(sa.types.Enum(CurrenciesEnum), unique=True)
-    rate = sa.Column(sa.types.Float)
+    currency = sa.Column(sa.types.String, unique=True, nullable=False)
+    rate = sa.Column(sa.types.Float, nullable=False)
 
 currencies = Currency.__table__

@@ -23,6 +23,10 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 
+from users.models import User
+from transfers.models import Transaction
+from currencies.models import Currency
+
 target_metadata = mainmetatadata
 
 # other values from the config, defined by the needs of env.py,

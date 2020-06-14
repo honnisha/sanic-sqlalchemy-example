@@ -7,6 +7,7 @@ from asyncpg import UniqueViolationError
 from currencies.models import CurrenciesEnum
 from sanic import Blueprint, response
 from users.models import users
+from currencies.models import currencies
 from users.utils import generate_password_hash, login_required, verify_password
 
 logger = logging.getLogger('users')
@@ -16,6 +17,7 @@ users_blueprint = Blueprint('users_blueprint', url_prefix='/api')
 LOGIN_DATA_ERROR = "Provide email, password for login"
 AUTH_ERROR_MESSAGE = "An account could not be found for the provided username and password"
 NO_DATA_ERROR = "No data provided"
+ALREADY_EXSITS_ERROR = "User with this email already exsits"
 
 
 @users_blueprint.route('/register', methods=['POST'])
@@ -38,12 +40,15 @@ async def register(request):
 
     database = request.app.config['database']
     try:
+        query = select([currencies]).where(currencies.c.currency == currency)
+        currency_id = await database.execute(query=query)
+    
         user_id = await database.execute(
             query=users.insert(),
             values={
                 "email": email,
                 "_balance": 0.0,
-                "currency": currency,
+                "currency_id": currency_id,
                 "password_hash": generate_password_hash(password),
             }
         )
@@ -52,29 +57,32 @@ async def register(request):
         request.ctx.session['user_id'] = user_id
 
     except UniqueViolationError:
-        return response.text("User with this email already exsits", status=400)
+        return response.text(ALREADY_EXSITS_ERROR, status=400)
 
     return response.text("Registered")
     
 @users_blueprint.route('/login', methods=['POST'])
 async def login(request):
+    if not request.json:
+        return response.text(NO_DATA_ERROR, status=401)
+
     email = request.json.get('email')
     password = request.json.get('password')
 
     if not email or not password:
-        return response.text(LOGIN_DATA_ERROR)
+        return response.text(LOGIN_DATA_ERROR, status=401)
 
     database = request.app.config['database']
     query = select([users]).where(users.c.email == email)
-    user_id = await database.fetch_one(query=query)
+    user = await database.fetch_one(query=query)
 
-    if user and verify_password(user.password_hash, password):
+    if user and verify_password(dict(user)['password_hash'], password):
 
         # Save in session
-        request.ctx.session['user_id'] = user_id
+        request.ctx.session['user_id'] = dict(user)['id']
         return response.text("Logged in successfully")
 
-    return response.text(AUTH_ERROR_MESSAGE)
+    return response.text(AUTH_ERROR_MESSAGE, status=401)
 
 
 @users_blueprint.route('/logout')
