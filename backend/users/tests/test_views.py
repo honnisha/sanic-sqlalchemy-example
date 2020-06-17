@@ -1,7 +1,5 @@
 import json
 
-import pytest
-
 from users.views import NO_DATA_ERROR, ALREADY_EXSITS_ERROR, AUTH_ERROR_MESSAGE
 
 

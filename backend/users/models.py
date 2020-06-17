@@ -2,9 +2,7 @@ from decimal import Decimal
 
 import sqlalchemy as sa
 
-from currencies.models import CurrenciesEnum
 from main import Base
-from users.utils import generate_password_hash, verify_password
 
 
 class User(Base):
@@ -12,7 +10,7 @@ class User(Base):
 
     id = sa.Column(sa.types.Integer, primary_key=True, unique=True, autoincrement=True)
 
-    _balance = sa.Column(sa.types.Float(precision=28), nullable=False)
+    _balance = sa.Column(sa.types.Float(precision=5), nullable=False)
     email = sa.Column(sa.types.String, unique=True, nullable=False)
     password_hash = sa.Column(sa.types.String, nullable=False)
 

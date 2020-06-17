@@ -13,6 +13,9 @@ class CurrenciesEnum(enum.Enum):
     BTC = "BTC"
 
 
+base = "EUR"
+
+
 class Currency(Base):
     __tablename__ = 'currency'
 

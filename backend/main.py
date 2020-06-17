@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-from datetime import timedelta
 from logging.config import dictConfig
 from socket import gaierror
 
-from sqlalchemy import MetaData
-from sqlalchemy.ext.declarative import declarative_base
+from redis import ConnectionPool
 
 import settings
 from databases import Database
 from sanic import Sanic
 from sanic_session import InMemorySessionInterface, Session
+from sqlalchemy import MetaData
+from sqlalchemy.ext.declarative import declarative_base
 
 dictConfig(settings.LOGGER_SETTINGS)
 
@@ -29,7 +29,10 @@ Base = declarative_base(metadata=mainmetatadata)
 
 @app.listener('before_server_start')
 async def connect_db(app, loop):
-    app.config['database'] = Database(app.config['CONNECTION'])
+    app.config['database'] = Database(
+        app.config['CONNECTION'],
+        force_rollback=app.config['FORCE_ROLLBACK']
+    )
     try:
         await app.config['database'].connect()
 
@@ -42,9 +45,18 @@ async def disconnect_db(app, loop):
     await app.config['database'].disconnect()
 
 
-def create_app(connection, run=True):
+def get_redis_pool():
+    return ConnectionPool(
+        host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0
+    )
+
+
+def create_app(connection, run=True, force_rollback=False, redis_use=True):
+
+    app.config['redis_pool'] = get_redis_pool() if redis_use else None
 
     app.config['CONNECTION'] = connection
+    app.config['FORCE_ROLLBACK'] = force_rollback
 
     from transfers.views import transfers_blueprint
     from users.views import users_blueprint

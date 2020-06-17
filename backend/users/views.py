@@ -7,8 +7,7 @@ from asyncpg import UniqueViolationError
 from currencies.models import CurrenciesEnum
 from sanic import Blueprint, response
 from users.models import users
-from currencies.models import currencies
-from users.utils import generate_password_hash, login_required, verify_password
+from users.utils import generate_password_hash, login_required, verify_password, create_user
 
 logger = logging.getLogger('users')
 
@@ -40,17 +39,9 @@ async def register(request):
 
     database = request.app.config['database']
     try:
-        query = select([currencies]).where(currencies.c.currency == currency)
-        currency_id = await database.execute(query=query)
-    
-        user_id = await database.execute(
-            query=users.insert(),
-            values={
-                "email": email,
-                "_balance": 0.0,
-                "currency_id": currency_id,
-                "password_hash": generate_password_hash(password),
-            }
+
+        user_id = await create_user(
+            database, email, 0.0, currency, password
         )
 
         # Save in session
@@ -60,7 +51,8 @@ async def register(request):
         return response.text(ALREADY_EXSITS_ERROR, status=400)
 
     return response.text("Registered")
-    
+
+
 @users_blueprint.route('/login', methods=['POST'])
 async def login(request):
     if not request.json:

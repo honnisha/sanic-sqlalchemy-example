@@ -10,6 +10,13 @@ services:
     volumes:
         - ./postgresql:/docker-entrypoint-initdb.d
 
+  redis:
+    image: redis
+    ports:
+      - "6379"
+    volumes:
+      - redis_data:/data
+
   backend:
     build:
       context: ./backend
@@ -30,6 +37,9 @@ services:
       - DATABASE_TEST_DB=db2
       - DATABASE_TEST_HOST=postgresql
 
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
     depends_on:
       - postgresql
     volumes:
@@ -49,3 +59,4 @@ services:
 
 volumes:
   db:
+  redis_data:

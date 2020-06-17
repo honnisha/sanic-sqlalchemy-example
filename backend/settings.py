@@ -39,6 +39,9 @@ LOGGER_SETTINGS = {
     },
 }
 
+REDIS_HOST = os.environ.get('REDIS_HOST')
+REDIS_PORT = os.environ.get('REDIS_PORT')
+
 connection = 'postgresql://{0}:{1}@{2}/{3}'.format(
     os.environ.get('DATABASE_USER'),
     os.environ.get('DATABASE_PASSWORD'),

@@ -8,8 +8,10 @@ import logging
 import settings
 import alembic.config
 
-from users.tests.test import *
-from currencies.tests.test import *
+from users.tests.test_views import *
+from currencies.tests.test_utils import *
+from currencies.tests.tests_converate import *
+from transfers.tests.test_views import *
 
 
 @pytest.yield_fixture(scope="session")
@@ -20,11 +22,16 @@ def sanic_app():
     db_url_arg = f'dburl={settings.test_connection}'
     alembic.config.main(argv=['-x', db_url_arg, 'upgrade', 'head'])
 
-    create_app(settings.test_connection, run=False)
+    # Rollback after each connect_db from before_server_start
+    create_app(
+        settings.test_connection, run=False,
+        force_rollback=True, redis_use=False
+    )
     yield app
 
     # Rollback db
     alembic.config.main(argv=['-x', db_url_arg, 'downgrade', 'base'])
+
 
 @pytest.fixture
 def test_cli(loop, sanic_app, sanic_client):

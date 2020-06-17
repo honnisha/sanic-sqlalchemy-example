@@ -1,5 +1,7 @@
 import json
 
+import redis
+
 import aiohttp
 from currencies.models import CurrenciesEnum, currencies
 from sqlalchemy.sql import bindparam, select
@@ -16,7 +18,7 @@ async def get_from_url(url):
             return json.loads(text)['rates']
 
 
-async def update_currencies(database):
+async def update_currencies(database, redis_pool=None):
     currency_choices = list(map(lambda c: c.value, CurrenciesEnum))
     currency_choices[currency_choices.index('GPB')] = 'GBP'
 
@@ -28,5 +30,30 @@ async def update_currencies(database):
 
     # Update rate
     for currency, rate in data.items():
+        if currency == 'GBP':
+            currency = 'GPB'
+
         query = currencies.update().where(currencies.c.currency == currency).values(rate=rate)
         updated = await database.execute(query, {'rate': rate, 'currency': currency})
+
+    if redis_pool:
+        conn = redis.Redis(connection_pool=redis_pool)
+        conn.hdel('currencies')
+
+
+async def get_currencies(database, redis_pool=None):
+    if redis_pool:
+        conn = redis.Redis(connection_pool=redis_pool)
+
+        currencies_data = conn.hgetall('currencies')
+        if currencies_data:
+            return currencies_data
+
+    query = select([currencies])
+    result = await database.fetch_all(query)
+    currencies_data = {c['currency']: {'rate': c['rate'], 'id': c['id'] } for c in result}
+
+    if redis_pool:
+        return conn.hmset("currencies", currencies_data)
+
+    return currencies_data
