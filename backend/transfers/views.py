@@ -28,7 +28,7 @@ async def transfer(request, user):
 
     balance = Decimal(user['_balance'])
     if value > balance:
-        pass #return response.text(NOT_ENOUGH_MONEY, status=400)
+        return response.text(NOT_ENOUGH_MONEY, status=400)
 
     email = request.json.get('email')
     if not email or not re.match(r"^[A-Za-z0-9\.\+_-]+@[A-Za-z0-9\._-]+\.[a-zA-Z]*$", email):

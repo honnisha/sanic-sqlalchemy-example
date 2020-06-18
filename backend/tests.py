@@ -11,7 +11,7 @@ import alembic.config
 from users.tests.test_views import *
 from currencies.tests.test_utils import *
 from currencies.tests.tests_converate import *
-from transfers.tests.test_views import *
+from transfers.tests.test_transfer import *
 
 
 @pytest.yield_fixture(scope="session")

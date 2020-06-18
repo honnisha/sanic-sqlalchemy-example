@@ -16,7 +16,9 @@ from transfers.models import transactions
 from users.models import users
 
 
-async def transfer_money(database: Database, redis_pool: ConnectionPool, user: dict, target_user: dict, value: Decimal) -> int:
+async def transfer_money(
+        database: Database, redis_pool: ConnectionPool, user: dict, target_user: dict, value: Decimal
+) -> int:
     context = getcontext()
     context.prec = 5
 
@@ -50,6 +52,14 @@ async def transfer_money(database: Database, redis_pool: ConnectionPool, user: d
             currency_id=user['currency_id']
         )
         return await database.execute(query, {'_balance': target_new_balance})
+
+
+async def get_user(database, user_id=None, email=None):
+    if user_id:
+        query = select([users]).where(users.c.id == user_id)
+    if email:
+        query = select([users]).where(users.c.email == email)
+    return await database.fetch_one(query=query)
 
 
 def generate_password_hash(password):
@@ -97,8 +107,7 @@ def login_required(insert_user=False):
                     database = request.app.config['database']
 
                     user_id = request.ctx.session['user_id']
-                    query = select([users]).where(users.c.id == user_id)
-                    user = await database.fetch_one(query=query)
+                    user = await get_user(database, user_id=user_id)
                     return await f(request, user, *args, **kwargs)
 
                 return await f(request, *args, **kwargs)
