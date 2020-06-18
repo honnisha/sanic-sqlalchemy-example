@@ -2,8 +2,6 @@ import os
 
 SECRET_KEY = "8e06922f-b52e-4203-ba61-66d54594e49e"
 
-DATABASES = {}
-
 HOST_IP = os.environ.get('BACKEND_IP', '0.0.0.0')
 HOST_PORT = os.environ.get('BACKEND_PORT', '8000')
 

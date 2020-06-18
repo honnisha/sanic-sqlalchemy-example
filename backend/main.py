@@ -11,6 +11,7 @@ from sanic import Sanic
 from sanic_session import InMemorySessionInterface, Session
 from sqlalchemy import MetaData
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.declarative.api import DeclarativeMeta
 
 dictConfig(settings.LOGGER_SETTINGS)
 
@@ -24,7 +25,7 @@ if not settings.SECRET_KEY:
 app.config['SECRET_KEY'] = settings.SECRET_KEY
 
 mainmetatadata = MetaData()
-Base = declarative_base(metadata=mainmetatadata)
+Base: DeclarativeMeta = declarative_base(metadata=mainmetatadata)
 
 
 @app.listener('before_server_start')

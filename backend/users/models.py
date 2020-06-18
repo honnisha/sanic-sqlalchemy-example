@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 import sqlalchemy as sa
 
 from main import Base
@@ -16,17 +14,5 @@ class User(Base):
 
     currency_id = sa.Column(sa.types.Integer, sa.ForeignKey('currency.id'), nullable=False)
     currency = sa.orm.relationship("Currency", backref="transaction")
-
-    @property
-    def balance(self):
-        return Decimal(self._balance)
-
-    @property
-    def name(self):
-        return f'#{id} {self.email}'
-
-    @balance.setter
-    def balance(self, new_balance):
-        self._balance = float(new_balance)
 
 users = User.__table__

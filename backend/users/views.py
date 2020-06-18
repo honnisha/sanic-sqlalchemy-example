@@ -1,13 +1,13 @@
 import logging
 import re
 
-from sqlalchemy.sql import select
-
 from asyncpg import UniqueViolationError
 from currencies.models import CurrenciesEnum
 from sanic import Blueprint, response
+from sqlalchemy.sql import select
 from users.models import users
-from users.utils import generate_password_hash, login_required, verify_password, create_user
+from users.utils import (
+    create_user, generate_password_hash, login_required, verify_password)
 
 logger = logging.getLogger('users')
 

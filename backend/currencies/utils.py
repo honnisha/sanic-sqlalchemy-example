@@ -1,14 +1,20 @@
 import json
 
 import redis
+from redis import ConnectionPool
 
 import aiohttp
 from currencies.models import CurrenciesEnum, currencies
+from databases import Database
 from sqlalchemy.sql import bindparam, select
 
 # UPDATE_URL = 'https://api.exchangeratesapi.io/latest?symbols={}'
 KEY = '6f2c32c1c903969dcfc7554bde8236be'
 UPDATE_URL = 'http://data.fixer.io/api/latest?access_key={key}&symbols={symbols}'
+
+
+class RurrenciesZeroError(Exception):
+    pass
 
 
 async def get_from_url(url):
@@ -41,7 +47,7 @@ async def update_currencies(database, redis_pool=None):
         conn.hdel('currencies')
 
 
-async def get_currencies(database, redis_pool=None):
+async def get_currencies(database: Database, redis_pool: ConnectionPool=None) -> dict:
     if redis_pool:
         conn = redis.Redis(connection_pool=redis_pool)
 
@@ -52,6 +58,12 @@ async def get_currencies(database, redis_pool=None):
     query = select([currencies])
     result = await database.fetch_all(query)
     currencies_data = {c['currency']: {'rate': c['rate'], 'id': c['id'] } for c in result}
+
+    zero_currencies = [
+        curr for curr, data in currencies_data.items() if not data['rate']
+    ]
+    if zero_currencies:
+        raise RurrenciesZeroError(f'Found currencies with 0 rate: {zero_currencies}. Call currencies.utils.update_currencies for update rates.')
 
     if redis_pool:
         return conn.hmset("currencies", currencies_data)
