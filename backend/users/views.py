@@ -34,8 +34,9 @@ async def register(request):
 
     currency_choices = list(map(lambda c: c.value, CurrenciesEnum))
     currency = request.json.get('currency')
-    if not currency or currency not in currency_choices:
+    if not currency or currency.upper() not in currency_choices:
         return response.text(f"Not valid, must be in {currency_choices}", status=400)
+    currency = currency.upper()
 
     database = request.app.config['database']
     try:

@@ -1,4 +1,4 @@
-# transfer-system
+# sanic-sqlalchemy-example
 
 Project is example of usage Sanic framework with Databases package uses async SQLAlchemy core (not orm). 
 

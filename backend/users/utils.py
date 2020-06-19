@@ -17,14 +17,17 @@ from users.models import users
 
 
 async def transfer_money(
-        database: Database, redis_pool: ConnectionPool, user: dict, target_user: dict, value: Decimal
+        database: Database, redis_pool: ConnectionPool, user: dict,
+        target_user: dict, value: Decimal
 ) -> int:
     context = getcontext()
     context.prec = 5
 
     async with database.transaction():
         currencies_data = await get_currencies(database, redis_pool)
-        currencies = {data['id']: curr for curr, data in currencies_data.items()}
+        currencies = {
+            data['id']: curr for curr, data in currencies_data.items()
+        }
 
         currency_form = currencies[user['currency_id']]
         currency_to = currencies[target_user['currency_id']]
@@ -33,7 +36,7 @@ async def transfer_money(
         balance = Decimal(user['_balance'])
         sender_new_balance = balance - value
         await database.execute(query, {'_balance': sender_new_balance})
-        
+
         value_in_target_currency = await convert(
             value, currency_form, currency_to, database
         )
@@ -81,7 +84,10 @@ def verify_password(stored_password, password):
     return pwdhash == stored_password
 
 
-async def create_user(database: Database, email: str, balance: float, currency: str, password: str) -> int:
+async def create_user(
+        database: Database, email: str, balance: float,
+        currency: str, password: str
+) -> int:
     query = select([currencies]).where(currencies.c.currency == currency)
     currency_id = await database.execute(query=query)
 
@@ -94,6 +100,7 @@ async def create_user(database: Database, email: str, balance: float, currency: 
             "password_hash": generate_password_hash(password),
         }
     )
+
 
 def login_required(insert_user=False):
     def decorator(f):
