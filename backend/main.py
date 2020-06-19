@@ -28,10 +28,6 @@ mainmetatadata = MetaData()
 Base: DeclarativeMeta = declarative_base(metadata=mainmetatadata)
 
 
-def something(x: str) -> str:
-    return None
-
-
 @app.listener('before_server_start')
 async def connect_db(app, loop):
     app.config['database'] = Database(
