@@ -1,6 +1,6 @@
 import json
 
-from users.views import NO_DATA_ERROR, ALREADY_EXSITS_ERROR, AUTH_ERROR_MESSAGE
+from users.api import NO_DATA_ERROR, ALREADY_EXSITS_ERROR, AUTH_ERROR_MESSAGE
 
 
 async def test_register_errors(test_cli):

@@ -6,7 +6,7 @@ from sqlalchemy.sql import select
 from transfers.models import transactions
 from users.models import users
 from users.utils import login_required, transfer_money
-from users.views import NO_DATA_ERROR
+from users.api import NO_DATA_ERROR
 
 NOT_VALID_EMAIL = "Not valid targer email"
 NOT_ENOUGH_MONEY = "You don't have enough money on balance"

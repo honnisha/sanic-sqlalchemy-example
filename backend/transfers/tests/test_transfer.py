@@ -5,7 +5,7 @@ from currencies.convertate import convert
 from currencies.models import CurrenciesEnum
 from currencies.tests.test_utils import MOCK_CURRENCIES
 from currencies.utils import update_currencies
-from transfers.views import (
+from transfers.api import (
     NOT_ENOUGH_MONEY, NOT_VALID_EMAIL, USER_EMAIL_NOT_FOUND)
 from users.utils import create_user, get_user, transfer_money
 

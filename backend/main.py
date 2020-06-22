@@ -59,10 +59,10 @@ def create_app(connection, run=True, force_rollback=False, redis_use=True):
     app.config['CONNECTION'] = connection
     app.config['FORCE_ROLLBACK'] = force_rollback
 
-    from transfers.views import transfers_blueprint
-    from users.views import users_blueprint
+    from transfers.api import transfers_blueprint
+    from users.api import users_blueprint
 
-    # Register views
+    # Register apis
     app.blueprint(users_blueprint)
     app.blueprint(transfers_blueprint)
 
