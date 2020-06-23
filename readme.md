@@ -8,8 +8,6 @@ PostgreSQL in Docker is configured for two databases, one is used for tests.
 
 pytest-sanic and pytest-mock is used for tests.
 
-Autorisation works with cookies.
-
 Redis is used for cache.
 
 ## About project
