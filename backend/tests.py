@@ -25,7 +25,7 @@ def sanic_app():
     # Rollback after each connect_db from before_server_start
     create_app(
         settings.test_connection, run=False,
-        force_rollback=True, redis_use=False
+        force_rollback=True, redis_db=1
     )
     yield app
 

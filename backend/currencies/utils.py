@@ -44,16 +44,16 @@ async def update_currencies(database, redis_pool=None):
 
     if redis_pool:
         conn = redis.Redis(connection_pool=redis_pool)
-        conn.hdel('currencies')
+        conn.delete('currencies')
 
 
 async def get_currencies(database: Database, redis_pool: ConnectionPool=None) -> dict:
     if redis_pool:
         conn = redis.Redis(connection_pool=redis_pool)
 
-        currencies_data = conn.hgetall('currencies')
+        currencies_data = conn.get('currencies')
         if currencies_data:
-            return currencies_data
+            return json.loads(currencies_data)
 
     query = select([currencies])
     result = await database.fetch_all(query)
@@ -66,6 +66,6 @@ async def get_currencies(database: Database, redis_pool: ConnectionPool=None) ->
         raise RurrenciesZeroError(f'Found currencies with 0 rate: {zero_currencies}. Call currencies.utils.update_currencies for update rates.')
 
     if redis_pool:
-        return conn.hmset("currencies", currencies_data)
+        return conn.set("currencies", json.dumps(currencies_data))
 
     return currencies_data

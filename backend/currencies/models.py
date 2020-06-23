@@ -13,6 +13,9 @@ class CurrenciesEnum(enum.Enum):
     BTC = "BTC"
 
 
+currency_choices = list(map(lambda c: c.value, CurrenciesEnum))
+
+
 base = "EUR"
 
 

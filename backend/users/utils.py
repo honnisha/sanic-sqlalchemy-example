@@ -2,15 +2,12 @@ import binascii
 import hashlib
 import os
 from decimal import Decimal, getcontext
-from functools import wraps
-
-from redis import ConnectionPool
 
 from currencies.convertate import convert
 from currencies.models import currencies
 from currencies.utils import get_currencies
 from databases import Database
-from sanic import response
+from redis import ConnectionPool
 from sqlalchemy.sql import select
 from transfers.models import transactions
 from users.models import users
@@ -65,7 +62,7 @@ async def get_user(database, user_id=None, email=None):
     return await database.fetch_one(query=query)
 
 
-def generate_password_hash(password):
+def generate_hash(password):
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
     pwdhash = hashlib.pbkdf2_hmac(
         'sha512', password.encode('utf-8'), salt, 100000
@@ -74,7 +71,7 @@ def generate_password_hash(password):
     return (salt + pwdhash).decode('ascii')
 
 
-def verify_password(stored_password, password):
+def verify_hash(stored_password, password):
     salt = stored_password[:64]
     stored_password = stored_password[64:]
     pwdhash = hashlib.pbkdf2_hmac(
@@ -97,29 +94,6 @@ async def create_user(
             "email": email,
             "_balance": balance,
             "currency_id": currency_id,
-            "password_hash": generate_password_hash(password),
+            "password_hash": generate_hash(password),
         }
     )
-
-
-def login_required(insert_user=False):
-    def decorator(f):
-        @wraps(f)
-        async def decorated_function(request, *args, **kwargs):
-            is_authorized = request.ctx.session.get('user_id')
-
-            if is_authorized:
-
-                if insert_user:
-                    database = request.app.config['database']
-
-                    user_id = request.ctx.session['user_id']
-                    user = await get_user(database, user_id=user_id)
-                    return await f(request, user, *args, **kwargs)
-
-                return await f(request, *args, **kwargs)
-            else:
-                # the user is not authorized.
-                return response.text('Not authorized', status=403)
-        return decorated_function
-    return decorator
