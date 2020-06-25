@@ -4,13 +4,14 @@ import json
 import uuid
 from abc import ABC, abstractmethod
 from functools import wraps
+from typing import Optional
 
 import jwt
 import redis
-import settings
 from redis import ConnectionPool
 from sanic import response
-from sanic.response import BaseHTTPResponse
+
+import settings
 from users.utils import generate_hash, get_user, verify_hash
 
 
@@ -50,7 +51,7 @@ class AbstractAuthorization(ABC):
 
     @classmethod
     @abstractmethod
-    async def user_authorize(cls, request, user_id: int, email: str) -> str:
+    async def user_authorize(cls, request, user_id: int, email: str) -> Optional[str]:
         pass
 
     @classmethod
@@ -59,27 +60,29 @@ class AbstractAuthorization(ABC):
         pass
 
 
-class SessionAuthorization():
+class SessionAuthorization:
+    @staticmethod
     def _get_session(request):
         return request.ctx.session
 
     @classmethod
     async def get_id_if_authorized(cls, request) -> int:
         return cls._get_session(request)['user_id']
-        
+
     @classmethod
-    async def user_authorize(cls, request, user_id: int, email: str) -> str:
+    async def user_authorize(cls, request, user_id: int, email: str) -> Optional[str]:
         cls._get_session(request)['user_id'] = user_id
-        
+        return None
+
     @classmethod
     async def user_unauthorize(cls, request):
         del cls._get_session(request)['user_id']
 
-        
+
 AbstractAuthorization.register(SessionAuthorization)
 
 
-class JWTAuthorization():
+class JWTAuthorization:
     @staticmethod
     def _generate_token(redis_pool: ConnectionPool, email: str, user_id: int) -> str:
         '''Generate token and store it, return token_key'''
@@ -101,7 +104,7 @@ class JWTAuthorization():
         conn.delete(email)
 
     @staticmethod
-    def _get_jwt_data_from_request(request) -> str:
+    def _get_jwt_data_from_request(request) -> Optional[dict]:
         authorization = request.headers.get('Authorization')
         if not authorization or not authorization.startswith('JWT '):
             return None
@@ -109,7 +112,7 @@ class JWTAuthorization():
         return jwt.decode(authorization[4:], settings.JWT_SECRET, algorithms=['HS256'])
 
     @classmethod
-    async def get_id_if_authorized(cls, request) -> int:
+    async def get_id_if_authorized(cls, request) -> Optional[int]:
         jwt_data = cls._get_jwt_data_from_request(request)
         redis_pool = request.app.config['redis_pool']
 
@@ -127,10 +130,12 @@ class JWTAuthorization():
         if verify_hash(token_hash, jwt_data['token']):
             return int(store_data['user_id'])
 
+        return None
+
     @classmethod
     async def user_authorize(cls, request, user_id: int, email: str) -> str:
         redis_pool = request.app.config['redis_pool']
-        token = cls._generate_token(request.app.config['redis_pool'], email, user_id)
+        token = cls._generate_token(redis_pool, email, user_id)
 
         lwt_data = {'email': email, 'token': token}
         jwt_encoded = jwt.encode(lwt_data, settings.JWT_SECRET, algorithm='HS256')
@@ -138,12 +143,13 @@ class JWTAuthorization():
 
     @classmethod
     async def user_unauthorize(cls, request):
+        redis_pool = request.app.config['redis_pool']
         jwt_data = cls._get_jwt_data_from_request(request)
         assert jwt_data
 
-        cls._remove_token(request.app.config['redis_pool'], jwt_data['email'])
+        cls._remove_token(redis_pool, jwt_data['email'])
 
-        
+
 AbstractAuthorization.register(JWTAuthorization)
 
 

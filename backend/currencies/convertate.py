@@ -2,7 +2,6 @@ from decimal import Decimal, getcontext
 
 from redis import ConnectionPool
 
-from currencies.models import CurrenciesEnum, base
 from currencies.utils import get_currencies
 from databases import Database
 

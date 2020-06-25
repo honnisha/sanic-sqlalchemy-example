@@ -1,12 +1,9 @@
 import logging
-import re
 
 from asyncpg import UniqueViolationError
 from sanic import Blueprint, response
 from sanic_validation import validate_json
-from sqlalchemy.sql import select
 from users.auth import login_required, user_auth_method
-from users.models import users
 from users.utils import create_user, get_user, verify_hash
 from users.json_validators import register_schema, login_schema
 
@@ -36,7 +33,7 @@ async def register(request):
 
     except UniqueViolationError:
         return response.json(
-            {'error': {'message': "User with this email already exsits"}},
+            {'error': {'message': 'User with this email already exsits'}},
             status=400
         )
 
@@ -59,7 +56,7 @@ async def login(request):
             'token': token
         })
 
-    return response.json({'error': AUTH_ERROR_MESSAGE}, status=401)
+    return response.json({'error': {'message': 'Login error'}}, status=401)
 
 
 @users_blueprint.route('/logout')

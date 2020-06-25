@@ -21,7 +21,7 @@ if not settings.SECRET_KEY:
 
 app.config['SECRET_KEY'] = settings.SECRET_KEY
 
-mainmetatadata = MetaData()
+mainmetatadata: MetaData = MetaData()
 Base: DeclarativeMeta = declarative_base(metadata=mainmetatadata)
 
 

@@ -3,11 +3,8 @@ from decimal import Decimal
 
 from sanic import Blueprint, response
 from sanic_validation import validate_json
-from sqlalchemy.sql import select
 from transfers.json_validators import transfer_schema
-from transfers.models import transactions
 from users.auth import login_required
-from users.models import users
 from users.utils import get_user, transfer_money
 
 transfers_blueprint = Blueprint('transfers_blueprint', url_prefix='/api')
