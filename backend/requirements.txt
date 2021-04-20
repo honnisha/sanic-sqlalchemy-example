@@ -2,7 +2,7 @@ remote_pdb==2.0.0
 sanic==20.3.0
 databases==0.3.2
 alembic==1.4.2
-asyncpg==0.20.1
+asyncpg==0.21.0
 psycopg2==2.8.5
 sanic-session==0.7.3
 aiohttp==3.6.2
