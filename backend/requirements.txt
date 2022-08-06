@@ -1,5 +1,5 @@
 remote_pdb==2.0.0
-sanic==20.3.0
+sanic==20.12.7
 databases==0.3.2
 alembic==1.4.2
 asyncpg==0.20.1
